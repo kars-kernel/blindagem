@@ -1,7 +1,9 @@
 - name: Install unattended-upgrades
-  ansible.builtin.package:
+  ansible.builtin.apt:
     name: unattended-upgrades
     state: present
+    update_cache: true
+    cache_valid_time: 3600
   when: ansible_os_family == "Debian"
   tags: [updates.automatic, updates]
 

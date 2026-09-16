@@ -1,7 +1,7 @@
 # A deliberately badly configured container, for testing only.
 # It is never exposed to a network and no service is started inside it.
 FROM python:3.12-slim
-RUN apt-get update && apt-get install -y --no-install-recommends openssh-server iproute2 \
+RUN apt-get update && apt-get install -y --no-install-recommends openssh-server iproute2 sudo \
     && rm -rf /var/lib/apt/lists/*
 RUN printf 'PermitRootLogin yes\nPasswordAuthentication yes\nX11Forwarding yes\nMaxAuthTries 6\n' \
       > /etc/ssh/sshd_config.d/00-weak.conf \
