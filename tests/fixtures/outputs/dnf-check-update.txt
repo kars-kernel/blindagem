@@ -1,0 +1,4 @@
+Last metadata expiration check: 0:12:31 ago on Mon 15 Sep 2025 10:02:11 AM UTC.
+
+kernel.x86_64                     6.9.7-200.fc40             updates
+openssl.x86_64                    1:3.2.2-2.fc40             updates

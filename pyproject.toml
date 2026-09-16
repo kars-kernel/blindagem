@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blindagem"
+version = "1.0.0"
+description = "Read-only hardening auditor for Linux servers"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+keywords = ["security", "hardening", "cis", "linux", "audit", "ansible"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = ["typer>=0.12", "rich>=13", "jinja2>=3.1", "pyyaml>=6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov", "ruff", "mypy", "types-PyYAML"]
+
+[project.urls]
+Homepage = "https://github.com/USUARIO/blindagem"
+Issues = "https://github.com/USUARIO/blindagem/issues"
+
+[project.scripts]
+blindagem = "blindagem.cli:app"
+
+[tool.setuptools.package-data]
+blindagem = ["remediation/tasks/*.yml", "report/templates/*"]
+
+[tool.pytest.ini_options]
+markers = ["docker: requires Docker and the test images"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "PIE"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[tool.coverage.run]
+source = ["blindagem"]
+omit = ["*/tests/*"]

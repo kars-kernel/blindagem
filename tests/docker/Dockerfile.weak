@@ -1,0 +1,14 @@
+# A deliberately badly configured container, for testing only.
+# It is never exposed to a network and no service is started inside it.
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends openssh-server iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+RUN printf 'PermitRootLogin yes\nPasswordAuthentication yes\nX11Forwarding yes\nMaxAuthTries 6\n' \
+      > /etc/ssh/sshd_config.d/00-weak.conf \
+    && chmod 644 /etc/shadow \
+    && chmod 644 /etc/crontab 2>/dev/null || true \
+    && echo 'toor:x:0:0::/root:/bin/sh' >> /etc/passwd \
+    && sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS\t99999/' /etc/login.defs
+COPY . /src
+RUN pip install --no-cache-dir /src
+CMD ["sleep", "infinity"]

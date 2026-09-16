@@ -1,0 +1,13 @@
+# The same base, configured the way the auditor recommends. Testing only.
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends openssh-server iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+RUN printf 'PermitRootLogin no\nPasswordAuthentication no\nX11Forwarding no\nMaxAuthTries 4\nPermitEmptyPasswords no\n' \
+      > /etc/ssh/sshd_config.d/00-hardened.conf \
+    && chown root:shadow /etc/shadow && chmod 640 /etc/shadow \
+    && chmod 600 /etc/ssh/sshd_config \
+    && printf 'minlen = 12\n' > /etc/security/pwquality.conf \
+    && sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS\t365/' /etc/login.defs
+COPY . /src
+RUN pip install --no-cache-dir /src
+CMD ["sleep", "infinity"]
