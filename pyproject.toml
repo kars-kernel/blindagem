@@ -27,8 +27,8 @@ dependencies = ["typer>=0.12", "rich>=13", "jinja2>=3.1", "pyyaml>=6"]
 dev = ["pytest>=8", "pytest-cov", "ruff", "mypy", "types-PyYAML"]
 
 [project.urls]
-Homepage = "https://github.com/USUARIO/blindagem"
-Issues = "https://github.com/USUARIO/blindagem/issues"
+Homepage = "https://github.com/kars-kernel/blindagem"
+Issues = "https://github.com/kars-kernel/blindagem/issues"
 
 [project.scripts]
 blindagem = "blindagem.cli:app"

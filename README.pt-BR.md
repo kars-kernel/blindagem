@@ -2,7 +2,7 @@
 
 > Auditor de hardening somente leitura para servidores Linux: verificações inspiradas no CIS, nota de 0 a 100, relatório HTML e um playbook Ansible para corrigir o que estiver errado.
 
-![CI](https://github.com/USUARIO/blindagem/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/kars-kernel/blindagem/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Ansible](https://img.shields.io/badge/remediation-Ansible-EE0000)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -19,7 +19,7 @@ a correção — sem alterar nada por conta própria.
 ## Uso rápido
 
 ```bash
-pipx install git+https://github.com/USUARIO/blindagem
+pipx install git+https://github.com/kars-kernel/blindagem
 sudo blindagem audit --html relatorio.html
 blindagem fix -o fix.yml && ansible-playbook -i meuservidor, fix.yml --check --diff
 ```

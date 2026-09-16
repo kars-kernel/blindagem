@@ -2,7 +2,7 @@
 
 > Read-only hardening auditor for Linux servers: CIS-inspired checks, a 0–100 score, an HTML report and an Ansible playbook to fix what's wrong.
 
-![CI](https://github.com/USUARIO/blindagem/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/kars-kernel/blindagem/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Ansible](https://img.shields.io/badge/remediation-Ansible-EE0000)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -37,7 +37,7 @@ without changing anything on its own.
 ## Quick start
 
 ```bash
-pipx install git+https://github.com/USUARIO/blindagem
+pipx install git+https://github.com/kars-kernel/blindagem
 sudo blindagem audit --html report.html
 blindagem fix -o fix.yml && ansible-playbook -i myserver, fix.yml --check --diff
 ```
