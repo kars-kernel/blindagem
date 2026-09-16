@@ -119,7 +119,11 @@ def test_accept_redirects_pair(rootfs, check_result):
 # ------------------------------------------------------------------ updates
 
 
-def test_updates_pending_pair(make_host, check_result):
+def test_updates_pending_pair(rootfs, make_host, check_result):
+    apt_lists = rootfs / "var/lib/apt/lists"
+    apt_lists.mkdir(parents=True)
+    (apt_lists / "deb.debian.org_debian_dists_bookworm_main_binary-amd64_Packages").write_text("")
+
     host = make_host({("apt", "list", "--upgradable"): ok(output("apt-upgradable.txt"))})
     result = check_result("updates.pending", host)
     assert result.status is Status.FAIL
@@ -247,3 +251,23 @@ def test_tmp_options_fall_back_to_fstab(rootfs, check_result):
 def test_tmp_options_without_any_mount_source_is_an_error(rootfs, check_result):
     (rootfs / "etc/fstab").unlink()
     assert check_result("fs.tmp_options").status is Status.ERROR
+
+
+def test_updates_pending_without_a_package_list_is_not_a_pass(rootfs, make_host, check_result):
+    """An empty apt cache must not read as 'up to date'.
+
+    apt lists nothing upgradable when it has no package list, which is exactly
+    what a machine months behind on patches also looks like.
+    """
+    host = make_host({("apt", "list", "--upgradable"): ok(output("apt-clean.txt"))})
+    result = check_result("updates.pending", host)
+    assert result.status is Status.ERROR
+    assert "apt update" in " ".join(result.evidence)
+
+
+def test_updates_pending_passes_when_the_list_exists(rootfs, make_host, check_result):
+    lists = rootfs / "var/lib/apt/lists"
+    lists.mkdir(parents=True)
+    (lists / "deb.debian.org_debian_dists_bookworm_main_binary-amd64_Packages").write_text("")
+    host = make_host({("apt", "list", "--upgradable"): ok(output("apt-clean.txt"))})
+    assert check_result("updates.pending", host).status is Status.PASS

@@ -26,6 +26,16 @@ CATEGORY = "updates"
 def pending(host: Host) -> CheckResult:
     check_id = "updates.pending"
     if host.family == "debian":
+        if not _apt_lists_present(host):
+            # With no package list, apt reports nothing upgradable. Calling that
+            # "up to date" would be a false pass on a machine that may be months
+            # behind, so say what is actually known instead.
+            return CheckResult(
+                check_id,
+                Status.ERROR,
+                "apt has no package list, so pending updates are unknown",
+                ["run 'apt update' first"],
+            )
         result = host.run(["apt", "list", "--upgradable"], timeout=60)
         if result is None:
             return CheckResult(check_id, Status.ERROR, "apt could not be run")
@@ -64,6 +74,12 @@ def pending(host: Host) -> CheckResult:
             shown,
         )
     return CheckResult(check_id, Status.PASS, "every package is up to date")
+
+
+def _apt_lists_present(host: Host) -> bool:
+    """Whether apt has package lists to answer from at all."""
+    ignored = {"lock", "partial", "auxfiles"}
+    return any(path.name not in ignored for path in host.glob("/var/lib/apt/lists/*"))
 
 
 @check(
