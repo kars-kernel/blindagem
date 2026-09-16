@@ -7,7 +7,8 @@
 ![Ansible](https://img.shields.io/badge/remediation-Ansible-EE0000)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-![demo](docs/screenshots/demo.gif)
+<!-- Record a demo and drop it here: asciinema rec + agg, or peek.
+     ![demo](docs/screenshots/demo.gif) -->
 
 [Leia em português](README.pt-BR.md)
 
