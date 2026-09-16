@@ -1,0 +1,22 @@
+- name: Install ufw
+  ansible.builtin.package:
+    name: ufw
+    state: present
+  when: ansible_os_family == "Debian"
+  tags: [net.firewall_active, net]
+
+- name: Allow the SSH port before anything is blocked
+  community.general.ufw:
+    rule: allow
+    port: "{{ ansible_port | default(22) }}"
+    proto: tcp
+  when: ansible_os_family == "Debian"
+  tags: [net.firewall_active, net]
+
+- name: Enable the firewall with a default-deny policy for incoming traffic
+  community.general.ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+  when: ansible_os_family == "Debian"
+  tags: [net.firewall_active, net]

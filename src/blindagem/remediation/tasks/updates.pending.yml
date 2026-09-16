@@ -1,0 +1,7 @@
+# Upgrading packages can restart services, so this task never runs unless it is
+# asked for by name: ansible-playbook fix.yml --tags updates.pending
+- name: Install pending updates
+  ansible.builtin.package:
+    name: "*"
+    state: latest  # noqa package-latest - deliberate: this task is the update
+  tags: [never, updates.pending, updates]

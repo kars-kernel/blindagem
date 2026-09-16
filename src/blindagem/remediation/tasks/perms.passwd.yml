@@ -1,0 +1,7 @@
+- name: Restrict /etc/passwd to root for writing
+  ansible.builtin.file:
+    path: /etc/passwd
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [perms.passwd, permissions]

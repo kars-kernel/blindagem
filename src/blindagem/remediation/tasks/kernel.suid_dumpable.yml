@@ -1,0 +1,9 @@
+- name: Stop SUID programs from writing core dumps
+  ansible.posix.sysctl:
+    name: fs.suid_dumpable
+    value: "0"
+    sysctl_file: /etc/sysctl.d/60-blindagem.conf
+    sysctl_set: true
+    state: present
+    reload: true
+  tags: [kernel.suid_dumpable, kernel]

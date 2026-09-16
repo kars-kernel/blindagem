@@ -1,0 +1,9 @@
+- name: Restrict the kernel log to root
+  ansible.posix.sysctl:
+    name: kernel.dmesg_restrict
+    value: "1"
+    sysctl_file: /etc/sysctl.d/60-blindagem.conf
+    sysctl_set: true
+    state: present
+    reload: true
+  tags: [kernel.dmesg_restrict, kernel]

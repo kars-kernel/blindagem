@@ -1,0 +1,13 @@
+- name: Install the audit daemon
+  ansible.builtin.package:
+    name: auditd
+    state: present
+  tags: [services.auditd, services]
+
+- name: Enable and start the audit daemon
+  ansible.builtin.service:
+    name: auditd
+    enabled: true
+    state: started
+  when: not (skip_service_restart | default(false))
+  tags: [services.auditd, services]

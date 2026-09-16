@@ -1,0 +1,7 @@
+- name: Restrict sshd_config to root
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0600"
+  tags: [ssh.config_perms, ssh]

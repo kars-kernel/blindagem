@@ -1,0 +1,7 @@
+- name: Restrict /etc/crontab to root
+  ansible.builtin.file:
+    path: /etc/crontab
+    owner: root
+    group: root
+    mode: "0600"
+  tags: [perms.crontab, permissions]

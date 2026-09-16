@@ -1,0 +1,12 @@
+- name: Disable SSH X11 forwarding
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/10-blindagem.conf
+    regexp: '^\s*X11Forwarding\b'
+    line: X11Forwarding no
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: restart ssh
+  tags: [ssh.x11_forwarding, ssh]

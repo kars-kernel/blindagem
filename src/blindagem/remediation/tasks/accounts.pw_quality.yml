@@ -1,0 +1,10 @@
+- name: Require passwords of at least 12 characters
+  ansible.builtin.lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*minlen\s*='
+    line: minlen = 12
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [accounts.pw_quality, accounts]

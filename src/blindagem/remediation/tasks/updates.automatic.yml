@@ -1,0 +1,26 @@
+- name: Install unattended-upgrades
+  ansible.builtin.package:
+    name: unattended-upgrades
+    state: present
+  when: ansible_os_family == "Debian"
+  tags: [updates.automatic, updates]
+
+- name: Turn on automatic security updates
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+  when: ansible_os_family == "Debian"
+  tags: [updates.automatic, updates]
+
+- name: Enable dnf-automatic
+  ansible.builtin.service:
+    name: dnf-automatic.timer
+    enabled: true
+    state: started
+  when: ansible_os_family == "RedHat" and not (skip_service_restart | default(false))
+  tags: [updates.automatic, updates]

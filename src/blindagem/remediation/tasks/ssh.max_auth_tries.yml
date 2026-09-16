@@ -1,0 +1,12 @@
+- name: Limit SSH authentication attempts per connection
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/10-blindagem.conf
+    regexp: '^\s*MaxAuthTries\b'
+    line: MaxAuthTries 4
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: restart ssh
+  tags: [ssh.max_auth_tries, ssh]

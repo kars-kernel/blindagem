@@ -1,0 +1,9 @@
+- name: Enable full address space layout randomisation
+  ansible.posix.sysctl:
+    name: kernel.randomize_va_space
+    value: "2"
+    sysctl_file: /etc/sysctl.d/60-blindagem.conf
+    sysctl_set: true
+    state: present
+    reload: true
+  tags: [kernel.aslr, kernel]

@@ -1,0 +1,9 @@
+- name: Enable TCP SYN cookies
+  ansible.posix.sysctl:
+    name: net.ipv4.tcp_syncookies
+    value: "1"
+    sysctl_file: /etc/sysctl.d/60-blindagem.conf
+    sysctl_set: true
+    state: present
+    reload: true
+  tags: [net.syncookies, net]

@@ -1,0 +1,13 @@
+- name: Install fail2ban
+  ansible.builtin.package:
+    name: fail2ban
+    state: present
+  tags: [services.fail2ban, services]
+
+- name: Enable and start fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    enabled: true
+    state: started
+  when: not (skip_service_restart | default(false))
+  tags: [services.fail2ban, services]

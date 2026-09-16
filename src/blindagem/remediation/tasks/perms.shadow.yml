@@ -1,0 +1,7 @@
+- name: Restrict /etc/shadow
+  ansible.builtin.file:
+    path: /etc/shadow
+    owner: root
+    group: "{{ 'shadow' if ansible_os_family == 'Debian' else 'root' }}"
+    mode: "{{ '0640' if ansible_os_family == 'Debian' else '0000' }}"
+  tags: [perms.shadow, permissions]
