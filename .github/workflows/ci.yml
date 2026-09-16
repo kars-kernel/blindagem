@@ -1,0 +1,70 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  unit:
+    name: lint, types and unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy src
+      - run: pytest -m "not docker" --cov=blindagem --cov-report=xml
+      - name: The audit must not crash on the runner itself
+        run: blindagem audit --root / || [ $? -eq 1 ]
+
+  playbook:
+    name: generated playbook is valid
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e "." ansible-core ansible-lint
+      - run: ansible-galaxy collection install ansible.posix community.general
+      - name: Generate a playbook from the fake rootfs
+        run: blindagem fix --root tests/fixtures/rootfs -o fix.yml
+      - run: ansible-lint fix.yml
+      - run: ansible-playbook --syntax-check -i localhost, fix.yml
+
+  containers:
+    name: integration and end to end
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]" ansible-core ansible-lint docker
+      - run: ansible-galaxy collection install community.docker ansible.posix community.general
+      - run: docker build -f tests/docker/Dockerfile.weak -t blindagem-weak .
+      - run: docker build -f tests/docker/Dockerfile.hardened -t blindagem-hardened .
+      - run: pytest -m docker
+      - run: bash tests/e2e/run.sh
+
+  pyz:
+    name: single-file build
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: bash scripts/build_pyz.sh blindagem.pyz
+      - run: python3 blindagem.pyz list-checks
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blindagem.pyz
+          path: blindagem.pyz

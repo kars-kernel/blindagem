@@ -1,0 +1,26 @@
+# blindagem configuration. Copy to blindagem.yaml (or /etc/blindagem.yaml) and edit.
+# Every field is optional.
+
+# server (default) | workstation | container
+profile: server
+
+# Findings you have reviewed and decided to live with. They stay in the report,
+# marked as accepted with this justification, and score as a pass. Write a real
+# reason: the point is that the next person understands the decision.
+exceptions:
+  net.ip_forward: this host runs containers, so it has to forward packets
+  # ssh.password_auth: jump host used by contractors without company laptops
+
+# Checks that are not run at all. Prefer 'exceptions' — a disabled check leaves
+# no trace in the report.
+disabled: []
+  # - updates.pending
+
+# SUID binaries that are expected on this system. Replaces the built-in list, so
+# copy the defaults from src/blindagem/config.py before trimming it.
+# suid_allowlist:
+#   - /usr/bin/sudo
+#   - /usr/bin/passwd
+#   - /opt/vendor/bin/agent
+
+settings: {}
