@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>blindagem — hardening report for {{ report.host.hostname }}</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d; --text: #e6edf3;
+    --muted: #8b949e; --pass: #3fb950; --fail: #f85149; --warn: #d29922;
+    --skip: #6e7681; --error: #a371f7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--text);
+         font: 15px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 17px; margin: 32px 0 12px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .score-card { display: flex; flex-wrap: wrap; gap: 24px; align-items: center;
+                background: var(--panel); border: 1px solid var(--border);
+                border-radius: 12px; padding: 24px; }
+  .score { font-size: 64px; font-weight: 700; line-height: 1; color: {{ band_color }}; }
+  .score small { font-size: 18px; color: var(--muted); font-weight: 400; }
+  .band { text-transform: uppercase; letter-spacing: .08em; font-size: 12px;
+          color: {{ band_color }}; }
+  .facts { flex: 1; min-width: 240px; font-size: 13px; color: var(--muted); }
+  .facts div { margin: 2px 0; }
+  .facts b { color: var(--text); font-weight: 600; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag { font-size: 12px; padding: 3px 10px; border-radius: 999px;
+         border: 1px solid var(--border); background: #0d1117; }
+  .tag.pass { color: var(--pass); } .tag.fail { color: var(--fail); }
+  .tag.warn { color: var(--warn); } .tag.skip { color: var(--skip); }
+  .tag.error { color: var(--error); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; }
+  .bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; min-width: 120px; }
+  .bar span { display: block; }
+  .finding { background: var(--panel); border: 1px solid var(--border);
+             border-left: 4px solid var(--fail); border-radius: 8px;
+             padding: 16px 18px; margin-bottom: 12px; }
+  .finding.warn { border-left-color: var(--warn); }
+  .finding.accepted { border-left-color: var(--skip); opacity: .85; }
+  .finding h3 { margin: 0 0 6px; font-size: 15px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .sev { text-transform: uppercase; font-weight: 700; letter-spacing: .05em; }
+  .sev.critical, .sev.high { color: var(--fail); }
+  .sev.medium { color: var(--warn); } .sev.low { color: var(--muted); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+           color: var(--muted); margin: 10px 0 2px; }
+  ul.evidence { margin: 4px 0 0; padding-left: 20px; }
+  ul.evidence li { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
+         background: #0d1117; border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+  details { background: var(--panel); border: 1px solid var(--border);
+            border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  footer { margin-top: 40px; font-size: 12px; color: var(--muted);
+           border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🛡️ blindagem — hardening report</h1>
+  <p class="sub">{{ report.host.hostname }} · {{ report.generated_at }} · profile <b>{{ report.profile }}</b></p>
+
+  <section class="score-card">
+    <div>
+      <div class="score">{{ report.score }}<small>/100</small></div>
+      <div class="band">{{ report.band }}</div>
+    </div>
+    <div class="facts">
+      <div><b>Distribution</b> {{ report.host.distro }}</div>
+      <div><b>Kernel</b> {{ report.host.kernel or "—" }}</div>
+      <div><b>Audited root</b> <code>{{ report.host.root }}</code></div>
+      <div><b>Privileges</b> {{ "root" if report.host.is_root else "unprivileged (some checks could not run)" }}</div>
+      <div><b>Coverage</b> {{ report.evaluated }} of {{ report.results|length }} checks evaluated ({{ coverage_pct }}%)</div>
+      <div class="tags">
+        {% for status, count in report.counts.items() %}
+        <span class="tag {{ status }}">{{ count }} {{ status }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <h2>By category</h2>
+  <table>
+    <tr><th>Category</th><th>Pass</th><th>Fail</th><th>Warn</th><th>Not evaluated</th><th style="width:30%"></th></tr>
+    {% for name, counts in categories.items() %}
+    <tr>
+      <td>{{ name }}</td>
+      <td>{{ counts["pass"] }}</td>
+      <td>{{ counts["fail"] }}</td>
+      <td>{{ counts["warn"] }}</td>
+      <td>{{ counts["skip"] + counts["error"] }}</td>
+      <td>
+        <div class="bar">
+          {% set total = counts["total"] or 1 %}
+          <span style="width: {{ 100 * counts['pass'] / total }}%; background: var(--pass)"></span>
+          <span style="width: {{ 100 * counts['warn'] / total }}%; background: var(--warn)"></span>
+          <span style="width: {{ 100 * counts['fail'] / total }}%; background: var(--fail)"></span>
+          <span style="width: {{ 100 * (counts['skip'] + counts['error']) / total }}%; background: var(--skip)"></span>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Findings ({{ failures|length }})</h2>
+  {% if not failures %}
+  <p class="sub">Nothing failed. Check the coverage above before celebrating.</p>
+  {% endif %}
+  {% for row in failures %}
+  <article class="finding {{ 'warn' if row.result.status.value == 'warn' else '' }}">
+    <h3>{{ row.meta.title if row.meta else row.result.check_id }}</h3>
+    <div class="meta-line">
+      <span class="sev {{ row.severity }}">{{ row.severity }}</span> ·
+      <code>{{ row.result.check_id }}</code> · {{ row.result.status.value }}
+      {% if row.meta and row.meta.reference %} · {{ row.meta.reference }}{% endif %}
+    </div>
+    <div>{{ row.result.message }}</div>
+    {% if row.result.evidence %}
+    <div class="label">Evidence</div>
+    <ul class="evidence">{% for item in row.result.evidence %}<li>{{ item }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if row.meta %}
+    <div class="label">Why it matters</div><div>{{ row.meta.rationale }}</div>
+    <div class="label">How to fix</div><div>{{ row.meta.remediation }}</div>
+    {% endif %}
+  </article>
+  {% endfor %}
+
+  {% if accepted %}
+  <h2>Accepted risks ({{ accepted|length }})</h2>
+  {% for row in accepted %}
+  <article class="finding accepted">
+    <h3>{{ row.meta.title if row.meta else row.result.check_id }}</h3>
+    <div class="meta-line"><code>{{ row.result.check_id }}</code> · accepted in the configuration</div>
+    <div>{{ row.result.message }}</div>
+    <div class="label">Justification</div><div>{{ row.result.accepted_reason }}</div>
+  </article>
+  {% endfor %}
+  {% endif %}
+
+  {% if unknown %}
+  <h2>Not evaluated ({{ unknown|length }})</h2>
+  <details>
+    <summary>Checks that were skipped or could not run</summary>
+    <table>
+      <tr><th>Check</th><th>Status</th><th>Reason</th></tr>
+      {% for row in unknown %}
+      <tr><td><code>{{ row.result.check_id }}</code></td><td>{{ row.result.status.value }}</td><td>{{ row.result.message }}</td></tr>
+      {% endfor %}
+    </table>
+  </details>
+  {% endif %}
+
+  <h2>Passed ({{ passes|length }})</h2>
+  <details>
+    <summary>Show the checks that passed</summary>
+    <table>
+      <tr><th>Check</th><th>Severity</th><th>Result</th></tr>
+      {% for row in passes %}
+      <tr><td><code>{{ row.result.check_id }}</code></td><td>{{ row.severity }}</td><td>{{ row.result.message }}</td></tr>
+      {% endfor %}
+    </table>
+  </details>
+
+  <footer>
+    Generated by blindagem {{ report.tool_version }} in {{ "%.0f"|format(report.duration_ms) }} ms.
+    Checks are <em>inspired by</em> the CIS Benchmarks; this report does not certify compliance.
+    The audit changed nothing on this system.
+  </footer>
+</div>
+</body>
+</html>
