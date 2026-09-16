@@ -8,6 +8,7 @@ to generate, so those stay in the report as manual work.
 
 from __future__ import annotations
 
+import textwrap
 from pathlib import Path
 
 from ..models import Report, Status
@@ -24,12 +25,12 @@ HEADER = """\
 """
 
 PLAYBOOK_PREAMBLE = """\
-- name: blindagem remediation
+- name: Blindagem remediation
   hosts: all
   become: true
 
   handlers:
-    - name: restart ssh
+    - name: Restart ssh
       ansible.builtin.service:
         name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
         state: restarted
@@ -119,9 +120,13 @@ def build(report: Report) -> tuple[str, list[str], list[str]]:
     )
     manual_notes = ""
     if manual:
-        manual_notes = "#\n# Left for you to do by hand (too risky to generate):\n" + "".join(
-            f"#   - {check_id}: {report.meta[check_id].remediation}\n" for check_id in manual
-        )
+        lines = ["#", "# Left for you to do by hand (too risky to generate):"]
+        for check_id in manual:
+            # Wrapped because a comment over 160 characters trips ansible-lint.
+            wrapped = textwrap.wrap(f"{check_id}: {report.meta[check_id].remediation}", width=92)
+            lines.append(f"#   - {wrapped[0]}")
+            lines.extend(f"#     {line}" for line in wrapped[1:])
+        manual_notes = "\n".join(lines) + "\n"
     return header + manual_notes + "\n" + PLAYBOOK_PREAMBLE + "\n".join(body), automated, manual
 
 

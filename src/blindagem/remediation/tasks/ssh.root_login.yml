@@ -16,5 +16,5 @@
     group: root
     mode: "0644"
     validate: /usr/sbin/sshd -t -f %s
-  notify: restart ssh
+  notify: Restart ssh
   tags: [ssh.root_login, ssh]

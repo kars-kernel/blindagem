@@ -99,3 +99,37 @@ def test_write_also_emits_requirements(rootfs, make_host, tmp_path):
     requirements = yaml.safe_load((path.parent / "requirements.yml").read_text())
     names = {c["name"] for c in requirements["collections"]}
     assert "ansible.posix" in names
+
+
+def test_generated_playbook_satisfies_ansible_lint_basics(rootfs, make_host):
+    """Guard the rules ansible-lint applies in CI, so they fail here first.
+
+    These three cost a red pipeline once: a play or handler name in lowercase
+    (name[casing]) and a comment line over 160 characters (yaml[line-length]).
+    """
+    playbook, _automated, _manual = ansible.build(run(make_host()))
+
+    for number, line in enumerate(playbook.splitlines(), start=1):
+        assert len(line) <= 160, f"line {number} is {len(line)} characters long"
+
+    play = yaml.safe_load(playbook)[0]
+    names = [play["name"]]
+    names += [handler["name"] for handler in play.get("handlers", [])]
+    names += [task["name"] for task in play["tasks"]]
+    for name in names:
+        assert name[0].isupper(), f"'{name}' has to start with a capital letter"
+
+
+def test_every_notify_points_at_a_real_handler(rootfs, make_host):
+    playbook, _automated, _manual = ansible.build(run(make_host()))
+    play = yaml.safe_load(playbook)[0]
+    handlers = {handler["name"] for handler in play.get("handlers", [])}
+    for task in play["tasks"]:
+        if "notify" in task:
+            assert task["notify"] in handlers, f"{task['name']} notifies an unknown handler"
+
+
+def test_task_files_all_use_capitalised_names():
+    for path in sorted(ansible.TASKS_DIR.glob("*.yml")):
+        for task in yaml.safe_load(path.read_text()):
+            assert task["name"][0].isupper(), f"{path.name}: '{task['name']}'"

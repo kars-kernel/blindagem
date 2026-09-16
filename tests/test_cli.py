@@ -88,7 +88,7 @@ def test_fix_writes_a_playbook(rootfs, tmp_path):
     out = tmp_path / "fix.yml"
     result = runner.invoke(app, ["fix", "--root", str(rootfs), "-o", str(out)])
     assert result.exit_code == 0
-    assert "blindagem remediation" in out.read_text()
+    assert "Blindagem remediation" in out.read_text()
 
 
 def test_fix_can_work_from_a_saved_report(rootfs, tmp_path):
