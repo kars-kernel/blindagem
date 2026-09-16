@@ -120,7 +120,10 @@ def _setting_check(
             "machine, and every action lands in the logs as 'root' with no way to tell who did it. "
             "Admins should log in as themselves and escalate with sudo."
         ),
-        remediation="Set 'PermitRootLogin no' in /etc/ssh/sshd_config.d/10-blindagem.conf and reload sshd.",
+        remediation=(
+            "Set 'PermitRootLogin no' in /etc/ssh/sshd_config.d/10-blindagem.conf, "
+            "then reload sshd."
+        ),
         reference="CIS Linux Benchmark 5.2 (SSH server configuration)",
     )
 )
@@ -170,7 +173,8 @@ def password_auth(host: Host) -> CheckResult:
         severity=Severity.CRITICAL,
         rationale=(
             "If an account has no password and the daemon accepts that, anyone who knows the "
-            "user name is already inside. There is no scenario where this is acceptable on a server."
+            "user name is already inside. There is no scenario where this is acceptable "
+            "on a server."
         ),
         remediation="Set 'PermitEmptyPasswords no' and give every account a password or lock it.",
         reference="CIS Linux Benchmark 5.2 (SSH server configuration)",

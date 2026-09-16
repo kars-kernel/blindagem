@@ -1,4 +1,4 @@
-"""Turning results into a 0–100 score, without flattering the system."""
+"""Turning results into a 0-100 score, without flattering the system."""
 
 from __future__ import annotations
 

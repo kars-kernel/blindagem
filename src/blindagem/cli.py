@@ -206,7 +206,8 @@ def _print_report(report: Report, show_passed: bool = False) -> None:
             "[dim]Some checks could not run — try again with sudo for full coverage.[/dim]"
         )
     console.print(
-        "[dim]Nothing on this system was modified. Run 'blindagem fix -o fix.yml' for a playbook.[/dim]"
+        "[dim]Nothing on this system was modified. "
+        "Run 'blindagem fix -o fix.yml' for a playbook.[/dim]"
     )
 
 

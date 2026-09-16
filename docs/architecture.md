@@ -39,17 +39,20 @@ No check touches the filesystem or runs a command directly. Everything goes thro
 ## Adding a check
 
 ```python
-@check(CheckMeta(
-    id="net.ip_forward", title="The machine does not route packets",
-    category="network", severity=Severity.MEDIUM,
-    rationale="Why an attacker cares, in plain language.",
-    remediation="What the administrator should do.",
-    reference="CIS Linux Benchmark 3.2 (network parameters)",
-    skip_profiles=("container",),   # where the check makes no sense
-    needs_root=False,               # the runner turns this into an error without root
-))
-def ip_forward(host: Host) -> CheckResult:
-    ...
+@check(
+    CheckMeta(
+        id="net.ip_forward",
+        title="The machine does not route packets",
+        category="network",
+        severity=Severity.MEDIUM,
+        rationale="Why an attacker cares, in plain language.",
+        remediation="What the administrator should do.",
+        reference="CIS Linux Benchmark 3.2 (network parameters)",
+        skip_profiles=("container",),  # where the check makes no sense
+        needs_root=False,  # the runner turns this into an error without root
+    )
+)
+def ip_forward(host: Host) -> CheckResult: ...
 ```
 
 Then: a `pass` test, a `fail` test, and — if the fix is safe to automate — a task file at

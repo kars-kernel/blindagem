@@ -56,7 +56,7 @@ def extra_uid0(host: Host) -> CheckResult:
             "An empty password field means the account authenticates with nothing at all. "
             "Combined with any service that accepts local logins, that is an open door."
         ),
-        remediation="Set a password with 'passwd <user>' or lock the account with 'passwd -l <user>'.",
+        remediation=("Set a password with 'passwd <user>' or lock it with 'passwd -l <user>'."),
         reference="CIS Linux Benchmark 6.2 (user and group settings)",
         needs_root=True,
     )
@@ -94,7 +94,9 @@ def empty_password(host: Host) -> CheckResult:
             "A password that never expires stays valid years after the laptop it was typed on "
             "was sold, or after the person who knew it left the company."
         ),
-        remediation="Set PASS_MAX_DAYS to 365 or less in /etc/login.defs (applies to new accounts).",
+        remediation=(
+            "Set PASS_MAX_DAYS to 365 or less in /etc/login.defs (applies to new accounts)."
+        ),
         reference="CIS Linux Benchmark 5.4 (user accounts and environment)",
     )
 )

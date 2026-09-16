@@ -32,7 +32,7 @@ def run_check(meta: CheckMeta, fn, host: Host) -> CheckResult:
                 result = _error(
                     meta, f"check returned {type(result).__name__}, expected CheckResult"
                 )
-    except Exception as exc:  # noqa: BLE001 - deliberate catch-all
+    except Exception as exc:  # deliberate catch-all: a broken check must not abort the run
         result = _error(meta, f"check raised {type(exc).__name__}: {exc}")
     result.duration_ms = (time.perf_counter() - started) * 1000
     return result

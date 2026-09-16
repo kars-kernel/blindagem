@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 
-class Status(str, Enum):
+class Status(StrEnum):
     """Outcome of a single check.
 
     ``SKIP`` means the check does not apply to this system (firewalld on Debian),
@@ -21,7 +21,7 @@ class Status(str, Enum):
     ERROR = "error"
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -112,5 +112,5 @@ class Report:
 
     @property
     def coverage(self) -> float:
-        """Fraction of checks that could actually be evaluated (0.0–1.0)."""
+        """Fraction of checks that could actually be evaluated (0.0 to 1.0)."""
         return self.evaluated / len(self.results) if self.results else 0.0

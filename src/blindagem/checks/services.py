@@ -89,9 +89,12 @@ def auditd(host: Host) -> CheckResult:
         rationale=(
             "If SSH accepts passwords, something has to stop the endless guessing. fail2ban "
             "reads the auth log and blocks an address after a few failures. With key-only "
-            "logins it is nice to have; with passwords it is the difference between noise and a breach."
+            "logins it is nice to have; with passwords it is the difference between noise "
+            "and a breach."
         ),
-        remediation="Install fail2ban and enable the sshd jail, or disable password authentication.",
+        remediation=(
+            "Install fail2ban and enable the sshd jail, or disable password authentication."
+        ),
         reference="CIS Linux Benchmark 5.2 (SSH server configuration)",
         skip_profiles=("container",),
     )

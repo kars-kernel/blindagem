@@ -167,7 +167,9 @@ def ip_forward(host: Host) -> CheckResult:
             "Accepting them lets anyone on the local network quietly reroute traffic through "
             "their own machine."
         ),
-        remediation="Set net.ipv4.conf.all.accept_redirects = 0 in /etc/sysctl.d/60-blindagem.conf.",
+        remediation=(
+            "Set net.ipv4.conf.all.accept_redirects = 0 in /etc/sysctl.d/60-blindagem.conf."
+        ),
         reference="CIS Linux Benchmark 3.2 (network parameters)",
         skip_profiles=("container",),
     )

@@ -116,7 +116,7 @@ class Host:
     @property
     def family(self) -> str:
         """'debian', 'rhel', 'suse', 'arch' or 'unknown' — picks the right commands."""
-        ids = [self.os_release.get("ID", "")] + self.os_release.get("ID_LIKE", "").split()
+        ids = [self.os_release.get("ID", ""), *self.os_release.get("ID_LIKE", "").split()]
         for name in ids:
             if name in ("debian", "ubuntu"):
                 return "debian"
